@@ -13,6 +13,16 @@ namespace custom {
         SPEED3 = 1
     };
 
+    export enum motorrundirection {
+        //% block="forward"
+        forward = 1,
+        //% block="right"
+        right = 1,
+        //% block="left"
+        left = 1,
+
+
+    };
     const stepperAllSteps = 2048;
     //motor L
     let stepperCh0: DigitalPin;
@@ -38,7 +48,7 @@ namespace custom {
      * @param in3 describe parameter here,eg: DigitalPin.P8
 
      */
-    //% blockId=ckmaker_stepperMotorLInitL block="stepperMotorInitL: |in0 %in0|in1 %in1|in2 %in2|in3 %in3"
+    //% blockId=ckmaker_stepperMotorLInitL block="stepperMotorInitL |in0 %in0|in1 %in1|in2 %in2|in3 %in3"
     //% in0.fieldEditor="gridpicker" in0.fieldOptions.columns=4
     //% in0.fieldOptions.tooltips="false" in0.fieldOptions.width="300"
     //% in1.fieldEditor="gridpicker" in1.fieldOptions.columns=4
@@ -66,7 +76,7 @@ namespace custom {
      * @param in5 describe parameter here, eg: DigitalPin.P1
      * @param in6 describe parameter here,eg: DigitalPin.P2
      * @param in7 describe parameter here,eg: DigitalPin.P8
-    //% blockId=ckmaker_stepperMotorLInitR block="stepperMotorInitR: |in4 %in4|in5 %in5|in6 %in6|in7 %in7"
+    //% blockId=ckmaker_stepperMotorLInitR block="stepperMotorInitR |in4 %in4|in5 %in5|in6 %in6|in7 %in7"
     //% in4.fieldEditor="gridpicker" in4.fieldOptions.columns=4
     //% in4.fieldOptions.tooltips="false" in4.fieldOptions.width="300"
     //% in5.fieldEditor="gridpicker" in5.fieldOptions.columns=4
@@ -95,35 +105,81 @@ namespace custom {
     //%blockId=ckmaker_stepperTurn block="stepperTurn |%n"
     //% weight=198 blockGap=3 color=#00BFFF
     export function stepperTurn(n: number) {
-        stepperStep(n * stepperAllSteps);
+        stepperStepL(n * stepperAllSteps);
+        stepperStepR(n * stepperAllSteps);
+    }
+    //%blockId=ckmaker_stepperTurn block="stepperrunforward |%n"
+    //% weight=198 blockGap=3 color=#00BFFF
+    export function stepperrunforward(n: number) {
+        if (motorrundirection.forward == 1) {
+            stepperStepL(n * stepperAllSteps);
+            stepperStepR(n * stepperAllSteps);      
+        }
+    }
+//%blockId=ckmaker_stepperTurn block="stepperrunleft |%n"
+    //% weight=198 blockGap=3 color=#00BFFF
+    export function stepperrunleft(n: number) {
+        if (motorrundirection.left == 1) {
+            stepperStepL(n * stepperAllSteps); 
+            stepperStepR(-n * stepperAllSteps);      
+        }
+    }//%blockId=ckmaker_stepperTurn block="stepperrunforward |%n"
+    //% weight=198 blockGap=3 color=#00BFFF
+    export function stepperrunright(n: number) {
+        if (motorrundirection.right == 1) {
+            stepperStepL(-n * stepperAllSteps); 
+            stepperStepR(n * stepperAllSteps);    
+        }
     }
 
-    //%blockId=ckmaker_stepperDegree block="stepperDegree |%degree"
-    //% weight=197 blockGap=3 color=#00BFFF
+    ////%blockId=ckmaker_stepperDegree block="stepperDegree |%degree"
+    ////% weight=197 blockGap=3 color=#00BFFF
     export function stepperDegree(degree: number) {
         let i = degree * stepperAllSteps / 360;
-        stepperStep(i);
+    //    stepperStep(i);
     }
-    //%blockId=ckmaker_stepperStep block="stepperStep |%d"
+    //%blockId=ckmaker_stepperStep block="stepperStepL |%d"
     //% weight=196 blockGap=30 color=#00BFFF
-    export function stepperStep(step: number) {
+    export function stepperStepL(step: number) {
         let i: number;
-        let j: number;   
         if (step > 0) stepperDirection = 1;
         else stepperDirection = 0;
         if (stepperDirection == 1) {
             for (i = 0; i < step; i++) {
-                let j = i;
-                setpperMotorR(i % 4);
-                setpperMotorL(j % 4);
+                setpperMotorL(i % 4);
                 basic.pause(stepperSpeed);
             }
         }
         else if (stepperDirection == 0) {
             for (i = -step; i > 0; i--) {
-                let j = i;
+                setpperMotorL(i % 4);
+                basic.pause(stepperSpeed);
+            }
+        }
+        pins.digitalWritePin(stepperCh0, 0);
+        pins.digitalWritePin(stepperCh1, 0);
+        pins.digitalWritePin(stepperCh2, 0);
+        pins.digitalWritePin(stepperCh3, 0);
+        pins.digitalWritePin(stepperCh4, 0);
+        pins.digitalWritePin(stepperCh5, 0);
+        pins.digitalWritePin(stepperCh6, 0);
+        pins.digitalWritePin(stepperCh7, 0);
+    }
+    //%blockId=ckmaker_stepperStep block="stepperStepR |%d"
+    //% weight=196 blockGap=30 color=#00BFFF
+    export function stepperStepR(step: number) {
+        let i: number;
+        if (step > 0) stepperDirection = 1;
+        else stepperDirection = 0;
+        if (stepperDirection == 1) {
+            for (i = 0; i < step; i++) {
                 setpperMotorR(i % 4);
-                setpperMotorL(j % 4);
+                basic.pause(stepperSpeed);
+            }
+        }
+        else if (stepperDirection == 0) {
+            for (i = -step; i > 0; i--) {
+                setpperMotorR(i % 4);
                 basic.pause(stepperSpeed);
             }
         }
@@ -137,6 +193,7 @@ namespace custom {
         pins.digitalWritePin(stepperCh7, 0);
 
     }
+
     export function setpperMotorL(step: number) {
         switch (step) {
             case 3: //1010
